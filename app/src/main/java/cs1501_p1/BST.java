@@ -2,7 +2,8 @@
  * A basic Binary Search Tree class for operations mentions in BST_Inter.java
  * @author David Roberts (djr107)
  */
-package cs1501_p1;
+
+import java.util.*;
 
 public class BST<T extends Comparable<T>> implements BST_Inter<T>
 {
@@ -12,6 +13,11 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 	private BTNode<T> root;
 
 	/**
+	 * Number of nodes in BST
+	 */
+	private int size;
+
+	/**
 	 * Creates an empty BST
 	 */
 	public BST()
@@ -19,6 +25,7 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 		root = new BTNode(null);
 		root.setLeft(null);
 		root.setRight(null);
+		size = 0;
 	}
 
 	/**
@@ -28,7 +35,39 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 	 */
 	public void put(T key)
 	{
+		if (root.getKey() == null)
+		{
+			root = new BTNode(key);
+			//System.out.println("Added to top: "+key);
+		}
+		else
+		{
+			BTNode<T> curr = root;
 
+			while(key.compareTo(curr.getKey()) != 0)
+			{
+				if (key.compareTo(curr.getKey()) < 0)
+				{
+					if (curr.getLeft() == null)
+					{
+						size++;
+						curr.setLeft(new BTNode(key));
+					}
+					curr = curr.getLeft();
+					//System.out.println("Went left");
+				}
+				else if (key.compareTo(curr.getKey()) > 0)
+				{
+					if (curr.getRight() == null)
+					{
+						size++;
+						curr.setRight(new BTNode(key));
+					}
+					curr = curr.getRight();
+					//System.out.println("Went right");
+				}
+			}
+		}
 	}
 
 	/**
@@ -40,7 +79,35 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 	 */
 	public boolean contains(T key)
 	{
+		if (root.getKey() == null)
+		{
+			return false;
+		}
+		else
+		{
+			BTNode<T> curr = root;
 
+			while(curr != null)
+			{
+				//System.out.println("Key: "+key+" Curr: "+curr.getKey());
+				if (key.compareTo(curr.getKey()) == 0)
+				{
+					//System.out.println("Found");
+					return true;
+				}
+				if (key.compareTo(curr.getKey()) < 0)
+				{
+					curr = curr.getLeft();
+					//System.out.println("Went left");
+				}
+				else if (key.compareTo(curr.getKey()) > 0)
+				{
+					curr = curr.getRight();
+					//System.out.println("Went right");
+				}
+			}
+			return false;
+		}
 	}
 
 	/**
@@ -50,7 +117,50 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 	 */
 	public void delete(T key)
 	{
+		if (root.getKey() == null)
+		{
+			System.out.println("Tree is empty, cannot delete");
+		}
+		else
+		{
+			BTNode<T> curr = root;
 
+			while(curr != null)
+			{
+				if (key.compareTo(curr.getKey()) < 0)
+				{
+					if (key.compareTo(curr.getLeft().getKey()) == 0)
+					{
+						if (curr.getLeft().getLeft() != null || curr.getLeft().getRight() != null)
+						{
+							curr.getLeft().getLeft().setRight(curr.getLeft().getRight());
+							curr.setLeft(curr.getLeft().getLeft());
+						}
+						else
+							curr.setLeft(null);
+						size--;
+					}
+					curr = curr.getLeft();
+					//System.out.println("Went left");
+				}
+				else if (key.compareTo(curr.getKey()) > 0)
+				{
+					if (key.compareTo(curr.getRight().getKey()) == 0)
+					{
+						if (curr.getRight().getLeft() != null || curr.getRight().getRight() != null)
+						{
+							curr.getRight().getRight().setLeft(curr.getRight().getLeft());
+							curr.setRight(curr.getRight().getRight());
+						}
+						else
+							curr.setRight(null);
+						size--;
+					}
+					curr = curr.getRight();
+					//System.out.println("Went right");
+				}
+			}
+		}
 	}
 
 	/**
@@ -63,7 +173,56 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 	 */
 	public int height()
 	{
+		if (root.getKey() == null)
+		{
+			System.out.println("Tree is empty, cannot delete");
+			return -1;
+		}
+		else
+		{
+			ArrayList<Integer> hList = new ArrayList<Integer>();
+			heightRec(root, 1, hList);
 
+			int max = 0;
+			for (Integer i : hList)
+			{
+				if (i > max)
+					max = i;
+			}
+			return max;
+		}
+	}
+
+	/**
+	 * Goes to each node, increasing height when needed. When gets to a leaf, add height to hList,
+	 * then backtrack, decreasing height and going to next node.
+	 *
+	 * @param curr 	current node of search
+	 * 
+	 * @param h  size of height at curr
+	 * 
+	 * @param hList list of heights
+	 */
+	private void heightRec(BTNode<T> curr, int h, ArrayList<Integer> hList)
+	{
+		//System.out.println("Height: "+h+" at curr: "+curr.getKey());
+		if (curr.getLeft() != null)
+		{
+			//System.out.println("Going Left");
+			heightRec(curr.getLeft(), h+1, hList);
+		}
+		//System.out.println("Done going left");
+		//System.out.println("Height: "+h+" at curr: "+curr.getKey());
+		if (curr.getRight() != null)
+		{
+			//System.out.println("Going Right");
+			heightRec(curr.getRight(), h+1, hList);
+		}
+		else
+		{
+			hList.add(h);
+		}
+		//System.out.println("Done going right");
 	}
 
 	/**
@@ -77,7 +236,45 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 	 */
 	public boolean isBalanced()
 	{
+		if (root.getKey() == null)
+		{
+			System.out.println("Tree is empty");
+			return true;
+		}
+		else
+		{
+			ArrayList<Integer> hList = new ArrayList<Integer>();
+			heightRec(root, 1, hList);
 
+			for (int i=0; i<hList.size()-1; i++)
+			{
+				/*
+				System.out.print(hList.get(i)+"!="+(hList.get(i+1))+": ");
+				if(hList.get(i) != hList.get(i+1))
+					System.out.println("True");
+				else
+					System.out.println("False");
+
+				System.out.print(hList.get(i)+"!="+(hList.get(i+1)+1)+": ");
+				if(hList.get(i) != hList.get(i+1)+1)
+					System.out.println("True");
+				else
+					System.out.println("False");
+
+				System.out.print(hList.get(i)+"!="+(hList.get(i+1)-1)+": ");
+				if(hList.get(i) != hList.get(i+1)-1)
+					System.out.println("True");
+				else
+					System.out.println("False");
+				*/
+
+				if (hList.get(i) != hList.get(i+1)+1 && hList.get(i) != hList.get(i+1)-1 && hList.get(i) != hList.get(i+1))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
 	}
 
 	/**
@@ -91,7 +288,46 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 	 */
 	public String inOrderTraversal()
 	{
+		if (root.getKey() == null)
+		{
+			return "Tree is empty";
+		}
+		else
+		{
+			ArrayList<T> tList = new ArrayList<T>();
+			getKeysIOT(root, tList);
 
+			StringBuilder sb = new StringBuilder();
+			for (int i=0; i<tList.size(); i++)
+			{
+				sb.append(tList.get(i));
+				if (i != tList.size()-1)
+				{
+					sb.append(":");
+				}
+			}
+			return sb.toString();
+		}
+	}
+
+	/**
+	 * Goes to each node in correct order, adding key to ArrayList
+	 *
+	 * @param curr 	current node of search
+	 * 
+	 * @param tList list of keys
+	 */
+	private void getKeysIOT(BTNode<T> curr, ArrayList<T> tList)
+	{
+		if (curr.getLeft() != null)
+		{
+			getKeysIOT(curr.getLeft(), tList);
+		}
+		tList.add(curr.getKey());
+		if (curr.getRight() != null)
+		{
+			getKeysIOT(curr.getRight(), tList);
+		}
 	}
 
 	/**
@@ -114,7 +350,39 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 	 */
 	public String serialize()
 	{
+		if (root.getKey() == null)
+		{
+			return "Tree is empty";
+		}
+		else
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.append("R("+root.getKey()+")");
 
+			getKeysSER(root, sb);
+
+			return sb.toString();
+		}
+	}
+
+	private void getKeysSER(BTNode<T> curr, StringBuilder sb)
+	{
+		if (curr.getLeft() != null)
+		{
+			if (curr.getLeft().getLeft() == null && curr.getLeft().getRight() == null)
+				sb.append(",L("+curr.getLeft().getKey()+")");
+			else if (curr.getLeft().getLeft() != null || curr.getLeft().getRight() != null)
+				sb.append(",I("+curr.getLeft().getKey()+")");
+			getKeysSER(curr.getLeft(), sb);
+		}
+		if (curr.getRight() != null)
+		{
+			if (curr.getRight().getLeft() == null && curr.getRight().getRight() == null)
+				sb.append(",L("+curr.getRight().getKey()+")");
+			else if (curr.getRight().getLeft() != null || curr.getRight().getRight() != null)
+				sb.append(",I("+curr.getRight().getKey()+")");
+			getKeysSER(curr.getRight(), sb);
+		}
 	}
 
 	/**
@@ -126,6 +394,40 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 	 */
 	public BST_Inter<T> reverse()
 	{
+		BTNode<T> curr = root;
 
+		reverseRec(curr);
+
+		return this;
+	}
+
+	private void reverseRec(BTNode<T> curr)
+	{
+		//System.out.println("Curr: "+curr.getKey());
+		if (curr.getLeft() != null)
+		{
+			//System.out.println("Going Left");
+			BTNode<T> temp = curr.getLeft();
+			//System.out.println("Temp: "+temp.getKey());
+			if (curr.getRight() != null)
+			{
+				curr.setLeft(curr.getRight());
+				//System.out.println("Left now: "+curr.getLeft().getKey());
+				reverseRec(curr.getLeft());
+			}
+			curr.setRight(temp);
+			//System.out.println("Right now: "+curr.getRight().getKey());
+
+			reverseRec(curr.getRight());
+		}
+		else if (curr.getRight() != null)
+		{
+			//System.out.println("Going Right");
+			curr.setLeft(curr.getRight());
+			//System.out.println("Left now: "+curr.getLeft().getKey());
+
+			reverseRec(curr.getLeft());
+		}
+		//System.out.println("Popped");
 	}
 }
