@@ -2,6 +2,7 @@
  * A basic Binary Search Tree class for operations mentions in BST_Inter.java
  * @author David Roberts (djr107)
  */
+package cs1501_p1;
 
 import java.util.*;
 
