@@ -130,12 +130,27 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 			{
 				if (key.compareTo(curr.getKey()) < 0)
 				{
-					if (key.compareTo(curr.getLeft().getKey()) == 0)
+					if (curr.getLeft() != null && key.compareTo(curr.getLeft().getKey()) == 0)
 					{
-						if (curr.getLeft().getLeft() != null || curr.getLeft().getRight() != null)
+						if (curr.getLeft().getLeft() == null && curr.getLeft().getRight() != null)
 						{
-							curr.getLeft().getLeft().setRight(curr.getLeft().getRight());
+							curr.setRight(curr.getLeft().getRight());
+						}
+						else if (curr.getLeft().getLeft() != null && curr.getLeft().getRight() == null)
+						{
 							curr.setLeft(curr.getLeft().getLeft());
+						}
+						else if (curr.getLeft().getLeft() != null && curr.getLeft().getRight() != null)
+						{
+							BTNode<T> curr2 = curr.getLeft().getRight();
+
+							while (curr2.getLeft() != null)
+							{
+								curr2 = curr2.getLeft();
+							}
+
+							curr2.setLeft(curr.getLeft().getLeft()); 
+							curr.setLeft(curr.getLeft().getRight());
 						}
 						else
 							curr.setLeft(null);
@@ -146,11 +161,26 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 				}
 				else if (key.compareTo(curr.getKey()) > 0)
 				{
-					if (key.compareTo(curr.getRight().getKey()) == 0)
+					if (curr.getRight() != null && key.compareTo(curr.getRight().getKey()) == 0)
 					{
-						if (curr.getRight().getLeft() != null || curr.getRight().getRight() != null)
+						if (curr.getRight().getLeft() == null && curr.getRight().getRight() != null)
 						{
-							curr.getRight().getRight().setLeft(curr.getRight().getLeft());
+							curr.setRight(curr.getRight().getRight());
+						}
+						else if (curr.getRight().getLeft() != null && curr.getRight().getRight() == null)
+						{
+							curr.setRight(curr.getRight().getLeft());
+						}
+						else if (curr.getRight().getLeft() != null && curr.getRight().getRight() != null)
+						{
+							BTNode<T> curr2 = curr.getRight().getRight();
+
+							while (curr2.getLeft() != null)
+							{
+								curr2 = curr2.getLeft();
+							}
+
+							curr2.setLeft(curr.getRight().getLeft());
 							curr.setRight(curr.getRight().getRight());
 						}
 						else
@@ -195,8 +225,8 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 	}
 
 	/**
-	 * Goes to each node, increasing height when needed. When gets to a leaf, add height to hList,
-	 * then backtrack, decreasing height and going to next node.
+	 * Recursively goes to each node, increasing height when needed. When gets to a leaf, 
+	 * add height to hList, then backtrack, decreasing height and going to next node.
 	 *
 	 * @param curr 	current node of search
 	 * 
@@ -249,7 +279,8 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 
 			for (int i=0; i<hList.size()-1; i++)
 			{
-				/*
+				/* For testing purposes
+				 *
 				System.out.print(hList.get(i)+"!="+(hList.get(i+1))+": ");
 				if(hList.get(i) != hList.get(i+1))
 					System.out.println("True");
@@ -312,7 +343,7 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 	}
 
 	/**
-	 * Goes to each node in correct order, adding key to ArrayList
+	 * Recursively goes to each node in correct order, adding key to ArrayList
 	 *
 	 * @param curr 	current node of search
 	 * 
@@ -366,8 +397,17 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 		}
 	}
 
+	/**
+	 * Recursively goes to each node checking left first and the right, adding 
+	 * type of node and value to StringBuilder
+	 *
+	 * @param curr 	current node of search
+	 * 
+	 * @param sb string that is added to according to each node and its type
+	 */
 	private void getKeysSER(BTNode<T> curr, StringBuilder sb)
 	{
+		//System.out.println("Curr: "+curr.getKey());
 		if (curr.getLeft() != null)
 		{
 			if (curr.getLeft().getLeft() == null && curr.getLeft().getRight() == null)
@@ -378,12 +418,16 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 		}
 		if (curr.getRight() != null)
 		{
+			if (curr.getLeft() == null)
+				sb.append(",X");
 			if (curr.getRight().getLeft() == null && curr.getRight().getRight() == null)
 				sb.append(",L("+curr.getRight().getKey()+")");
 			else if (curr.getRight().getLeft() != null || curr.getRight().getRight() != null)
 				sb.append(",I("+curr.getRight().getKey()+")");
 			getKeysSER(curr.getRight(), sb);
 		}
+		if (curr.getRight() == null && curr.getLeft() != null)
+			sb.append(",X");
 	}
 
 	/**
@@ -402,6 +446,11 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 		return this;
 	}
 
+	/**
+	 * Recursive method for flipping the BST
+	 * 
+	 * @param curr 	current node of search
+	 */
 	private void reverseRec(BTNode<T> curr)
 	{
 		//System.out.println("Curr: "+curr.getKey());
@@ -426,6 +475,7 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 			//System.out.println("Going Right");
 			curr.setLeft(curr.getRight());
 			//System.out.println("Left now: "+curr.getLeft().getKey());
+			curr.setRight(null);
 
 			reverseRec(curr.getLeft());
 		}
