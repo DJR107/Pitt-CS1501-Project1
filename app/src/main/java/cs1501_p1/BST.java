@@ -41,7 +41,7 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 			root = new BTNode(key);
 			//System.out.println("Added to top: "+key);
 		}
-		else
+		else if (!contains(key))
 		{
 			BTNode<T> curr = root;
 
@@ -68,6 +68,10 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 					//System.out.println("Went right");
 				}
 			}
+		}
+		else
+		{
+			System.out.println("BST already contains key: "+key);
 		}
 	}
 
