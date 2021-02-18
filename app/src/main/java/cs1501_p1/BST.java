@@ -423,7 +423,7 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 		if (curr.getRight() != null)
 		{
 			if (curr.getLeft() == null)
-				sb.append(",X");
+				sb.append(",X(NULL)");
 			if (curr.getRight().getLeft() == null && curr.getRight().getRight() == null)
 				sb.append(",L("+curr.getRight().getKey()+")");
 			else if (curr.getRight().getLeft() != null || curr.getRight().getRight() != null)
@@ -431,7 +431,7 @@ public class BST<T extends Comparable<T>> implements BST_Inter<T>
 			getKeysSER(curr.getRight(), sb);
 		}
 		if (curr.getRight() == null && curr.getLeft() != null)
-			sb.append(",X");
+			sb.append(",X(NULL)");
 	}
 
 	/**
